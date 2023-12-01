@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 regex = { version = "1.10.2", features = [] }
+zip = "0.10.0-alpha.1"
