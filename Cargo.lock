@@ -3,14 +3,6 @@
 version = 3
 
 [[package]]
-name = "AOC"
-version = "0.1.0"
-dependencies = [
- "regex",
- "zip",
-]
-
-[[package]]
 name = "adler"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -23,6 +15,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2969dcb958b36655471fc61f7e416fa76033bdd4bfed0678d8fee1e2d07a1f0"
 dependencies = [
  "memchr",
+]
+
+[[package]]
+name = "aoc"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "zip",
 ]
 
 [[package]]
