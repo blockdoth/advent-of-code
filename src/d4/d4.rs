@@ -6,9 +6,21 @@ pub mod d4 {
         let mut cards_count = vec![1; file.len()];
         for (i,line ) in file.iter().enumerate() {
             let split = line.split('|').collect::<Vec<&str>>();
-            let winning_numbers = split[0].split(':').collect::<Vec<&str>>()[1].split(' ').filter(|s| !s.is_empty()).map(|s| s.parse::<i32>().expect("parse error")).collect::<HashSet<i32>>();
-            let card_numbers = split[1].split(' ').filter(|s| !s.is_empty()).map(|s| s.parse::<i32>().expect("parse error")).collect::<HashSet<i32>>();
-            let match_count = winning_numbers.intersection(&card_numbers).collect::<Vec<_>>().len();
+            let winning_numbers = split[0]
+                .split(':')
+                .collect::<Vec<&str>>()[1]
+                .split(' ')
+                .filter(|s| !s.is_empty())
+                .map(|s| s.parse::<i32>().expect("parse error"))
+                .collect::<HashSet<i32>>();
+            let card_numbers = split[1]
+                .split(' ')
+                .filter(|s| !s.is_empty())
+                .map(|s| s.parse::<i32>().expect("parse error"))
+                .collect::<HashSet<i32>>();
+            let match_count = winning_numbers
+                .intersection(&card_numbers)
+                .collect::<Vec<_>>().len();
             if match_count > 0 {
                 result1 += i32::pow(2, (match_count - 1) as u32);
             }

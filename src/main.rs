@@ -1,13 +1,13 @@
-pub mod d4;
+pub mod d5;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-use crate::d4::d4::d4::d4;
+use crate::d5::d5::d5::d5;
 
 fn main() {
-    let file = read_file("src/d4/d4.txt").expect("Failed to read file");
-    let results = d4(file);
+    let file = read_file("src/d5/d5_test.txt").expect("Failed to read file");
+    let results = d5(file);
     println!("Result: {} {}", results.0, results.1)
 }
 
