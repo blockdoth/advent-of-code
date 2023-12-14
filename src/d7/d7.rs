@@ -21,6 +21,7 @@ pub mod d7 {
             println!("{:?}", hand);
         }
         hand_list.sort_by(|a, b| a.0.cmp(&b.0));
+
         for (i, hand) in hand_list.iter().enumerate(){
             result1 += hand.2 * i;
         }
@@ -35,6 +36,11 @@ pub mod d7 {
         let hand_type = ["five_of", "four_of","full_house","three_of","two_pair","one_pair","high_card"];
         //                        100000     10000        10000       1000        100         10          1
         //                          1           2           2          3           3           4          5
+
+
+
+
+
         let mut hash_map = HashMap::new();
         let score = 0;
         for char in card.chars(){
