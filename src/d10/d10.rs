@@ -1,5 +1,7 @@
 pub mod d10 {
     use std::collections::{HashMap, VecDeque};
+    use std::io;
+    use std::io::Write;
 
 
     pub(crate) fn d10(file: Vec<String>) -> (i32, i32) {
@@ -57,15 +59,15 @@ pub mod d10 {
 
         let mut pipe_map: HashMap<char, [[u8; 3]; 3]> = HashMap::new();
         pipe_map.insert('|', straight_pipe_v);
-        pipe_map.insert('-', straight_pipe_h);
-        pipe_map.insert('L', bend_pipe_ne);
-        pipe_map.insert('J', bend_pipe_nw);
-        pipe_map.insert('F', bend_pipe_se);
-        pipe_map.insert('7', bend_pipe_sw);
+        pipe_map.insert('─', straight_pipe_h);
+        pipe_map.insert('└', bend_pipe_ne);
+        pipe_map.insert('┘', bend_pipe_nw);
+        pipe_map.insert('┌', bend_pipe_se);
+        pipe_map.insert('┐', bend_pipe_sw);
         pipe_map.insert('S', start_pipe);
 
         let height = file.len();
-        let width = file.get(0).expect("").len();
+        let width = height;
 
         // building the char grid with padding
         let mut char_grid:Vec<Vec<char>> = Vec::new();
@@ -83,12 +85,12 @@ pub mod d10 {
             char_row.push('.');
             char_grid.push(char_row);
         }
-        char_grid.push(vec!['.'; width + 2]);
+        char_grid.push(vec!['.';width + 2]);
 
         // building the value grid with padding
         let mut value_grid = Vec::with_capacity(height);
         for _ in 0..height + 2{
-            value_grid.push(vec![0; width + 2]);
+            value_grid.push(vec![0i16; width + 2]);
         }
 
         // traversing breadth first
@@ -133,12 +135,13 @@ pub mod d10 {
                 }
             }
             first_iter = false;
-            //print!("\x1bc");
-            //print_string_grid_with_updates(&char_grid, &value_grid,result1);
-        }
-        print_string_grid_with_updates(&char_grid, &value_grid,result1);
+            print!("\x1b[H");
+            print_string_grid_with_updates(&char_grid, &value_grid,result1);
 
-        let mut value_q:VecDeque<(i32,i32)> = VecDeque::new();
+        }
+
+
+        let mut value_q:VecDeque<(i16,i16)> = VecDeque::new();
         let flood_start_location = (0,0);
         value_q.push_back(flood_start_location);
         value_grid[0][0] = -1;
@@ -148,7 +151,7 @@ pub mod d10 {
                 for x_offset in -1..2 {
                     let x_cord = current_location.0 + x_offset;
                     let y_cord = current_location.1 + y_offset;
-                    if x_cord >= 0 && x_cord < width as i32 + 2 && y_cord >= 0 && y_cord < height as i32 + 2 {
+                    if x_cord >= 0 && x_cord < width as i16 + 2 && y_cord >= 0 && y_cord < height as i16 + 2 {
                         if value_grid[y_cord as usize][x_cord as usize] == 0 {
                             value_grid[y_cord as usize][x_cord as usize] = -1;
                             value_q.push_back((x_cord,y_cord));
@@ -156,58 +159,53 @@ pub mod d10 {
                     }
                 }
             }
+            print!("\x1b[H");
+            print_string_grid_with_updates(&char_grid, &value_grid,result1);
         }
 
         for (y,line) in value_grid.iter().enumerate() {
             for (x,value) in line.iter().enumerate() {
-                if *value == 0  && char_grid[y][x] == '.' {
+                if *value == 0 {
                     result2 += 1;
                 }
             }
         }
-        print_int_grid(&value_grid);
+        print_string_grid_with_updates(&char_grid, &value_grid,result1);
+
+        //print_int_grid(&value_grid);
 
 
 
-        (result1 - 1, result2)
+        ((result1 - 1 ) as i32, result2)
     }
-    fn print_string_grid_with_updates(string_grid: &Vec<Vec<char>>, value_grid: &Vec<Vec<i32>>, highest_value: i32) {
-        for (y,line) in string_grid.iter().enumerate() {
-            for (x,char) in line.iter().enumerate() {
-                let coord_value = value_grid[y][x];
-                if coord_value > 0{
-                    if coord_value == highest_value {
-                        print!("\x1b[32m {}\x1b[0m", char);
-                    }else{
-                        print!("\x1b[31m {}\x1b[0m", char);
-                    }
-                } else {
-                    print!(" {}", char);
-                }
-            }
-            print!("\n")
-        }
-    }
-    fn generate_string_grid_with_updates(string_grid: &Vec<Vec<char>>, value_grid: &Vec<Vec<i32>>, highest_value: i32) -> String {
-        let mut result = String::new();
+    fn print_string_grid_with_updates(string_grid: &Vec<Vec<char>>, value_grid: &Vec<Vec<i16>>, highest_value: i16) {
+        let stdout = io::stdout();
+        let mut handle = io::BufWriter::new(stdout.lock());
+
+        // Precompute ANSI escape codes
+        let green_code = "\x1b[32m";
+        let red_code = "\x1b[31m";
+        let reset_code = "\x1b[0m";
+
         for (y, line) in string_grid.iter().enumerate() {
             for (x, char) in line.iter().enumerate() {
                 let coord_value = value_grid[y][x];
-                if coord_value > 0 {
-                    if coord_value == highest_value {
-                        result.push_str(&format!("\x1b[32m {}\x1b[0m", char));
-                    } else {
-                        result.push_str(&format!("\x1b[31m {}\x1b[0m", char));
-                    }
+                if coord_value == -1 || coord_value == highest_value {
+                    write!(&mut handle, "{} {}{}", green_code, char, reset_code).unwrap();
+                } else if coord_value > 0 {
+                    write!(&mut handle, "{} {}{}", red_code, char, reset_code).unwrap();
                 } else {
-                    result.push_str(&format!(" {}", char));
+                    write!(&mut handle, " {}", char).unwrap();
                 }
             }
-            result.push('\n');
+            writeln!(&mut handle).unwrap();
         }
-        result
+
+        // Flush the buffer explicitly to ensure that the output is printed
+        handle.flush().unwrap();
     }
-    fn print_int_grid(int_grid: &Vec<Vec<i32>>) {
+
+    fn print_int_grid(int_grid: &Vec<Vec<i16>>) {
         for line in int_grid{
             for x in line {
                 if *x == -1{
@@ -221,5 +219,26 @@ pub mod d10 {
             }
             print!("\n")
         }
+    }
+
+    fn update_string_grid(value_grid: &Vec<Vec<i16>>, highest_value: i16) {
+        for (y,line) in value_grid.iter().enumerate() {
+            for (x,value) in line.iter().enumerate() {
+                if *value > 0 {
+                    if *value == highest_value {
+                        print!("\x1b[31m {}\x1b[0m", value);
+                    }else if *value == -1 {
+                        print!("\x1b[32m {}\x1b[0m", value);
+                    }
+                } else {
+                    print!(" {}", value);
+                }
+            }
+            print!("\n")
+        }
+    }
+
+    fn colorize_text(text: &str, color_code: u8) -> String {
+        format!("\x1b[{}m{}\x1b[0m", color_code, text)
     }
 }
