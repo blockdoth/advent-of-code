@@ -31,50 +31,52 @@ pub mod d13 {
                 v_lines.push(v_line);
             }
 
-            println!("Vertical");
-            result1 += find_symmetry_bounds(v_lines);
-            println!("horizontal");
-            result1 += find_symmetry_bounds(h_lines) * 100;
+
+            let v = find_symmetry_bounds(v_lines);
+            let h = find_symmetry_bounds(h_lines);
+            println!("{} {}", h, v);
+            result1 += v + h * 100;
         }
         (result1, result2)
     }
 
-    fn find_symmetry_bounds(v_lines: Vec<String>) -> i32 {
-        for line in &v_lines{
-            println!("{}", line);
-        }
+    fn find_symmetry_bounds(grid: Vec<String>) -> i32 {
+        // for line in &grid{
+        //     println!("{}", line);
+        // }
         // finding symmetry vertical
-        let mut left_index = 0;
-        for lines_duo in v_lines.windows(2) {
+        let mut mirror_line_right = 0;
+        let mut no_symmetry = true;
+        for lines_duo in grid.windows(2) {
+            mirror_line_right += 1;
             if lines_duo[0] == lines_duo[1] {
+                no_symmetry = false;
                 break;
             }
-            left_index += 1;
+        }
+        if no_symmetry {
+            return 0;
         }
 
         // finding symmetry bounds
         //println!("{:?} {:?}", left_index, right_index);
         //println!("{}\n{}", line_1, line_2);
-        let mut line_1 = String::new();
-        let mut line_2 = String::new();
-        let mut right_index = left_index + 1;
-        println!();
+
+        let mut left_index = mirror_line_right - 1;
+        let mut right_index = mirror_line_right;
         loop {
-            line_1 = v_lines[left_index].clone();
-            line_2 = v_lines[right_index].clone();
-            println!("{}\n{}", line_1, line_2);
+            let line_1 = grid[left_index].clone();
+            let line_2 = grid[right_index].clone();
+            if line_2 != line_1 {
+                return 0;
+            }
+            //println!("{}\n{}", line_1, line_2);
+            if right_index + 1  == grid.len() || left_index == 0 {
+                // println!("{}", mirror_line_right);
+                return mirror_line_right as i32;
+            }
             right_index += 1;
             left_index -= 1;
-            if line_2 != line_1 || right_index == v_lines.len() || left_index == 0{
-                break
-            }
         }
-        println!("{:?} {:?}", left_index, right_index);
-        if left_index == 0 || right_index + 1 == v_lines.len() {
-            return right_index as i32
-        }else{
-            return 0;
-        }
-
     }
 }
