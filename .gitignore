@@ -1,3 +1,4 @@
-/target
+/2023/target
 /.idea
-src/test.txt
+.direnv
+.envrc

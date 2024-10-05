@@ -1,5 +1,4 @@
 pub mod d15 {
-    use std::ops::Index;
 
     pub(crate) fn d15(file: Vec<String>) -> (i32, i32){
         let mut result1 = 0;
